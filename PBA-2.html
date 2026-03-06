@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>目标制定助手 · 学生端</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .main-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 40px);
+        }
+        
+        /* 左侧：资源中心 */
+        .resource-panel {
+            width: 380px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .resource-header {
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f3ff 100%);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        
+        .resource-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #1e3c72;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+        
+        .stage-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .stage-tab {
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #4a5568;
+        }
+        
+        .stage-tab:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .stage-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .resource-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .resource-item {
+            background: white;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #edf2f7;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .resource-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -8px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+        
+        .resource-item-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .resource-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .resource-info {
+            flex: 1;
+        }
+        
+        .resource-title {
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 4px;
+        }
+        
+        .resource-meta {
+            display: flex;
+            gap: 10px;
+            font-size: 0.75rem;
+            color: #a0aec0;
+        }
+        
+        .resource-desc {
+            font-size: 0.85rem;
+            color: #4a5568;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .resource-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 8px;
+            border-top: 1px solid #edf2f7;
+        }
+        
+        .resource-tag {
+            background: #f0f4ff;
+            color: #667eea;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        .resource-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        /* 右侧：智能体 */
+        .bot-panel {
+            flex: 1;
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .bot-header {
+            padding: 20px 25px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f3ff 100%);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .bot-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .bot-info h3 {
+            color: #1e3c72;
+            margin-bottom: 4px;
+        }
+        
+        .bot-info p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+        
+        #chat-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        /* 教师入口 */
+        .teacher-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 100;
+            font-size: 0.9rem;
+        }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+        }
+        
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #1e3c72;
+        }
+        
+        .modal-content input,
+        .modal-content select,
+        .modal-content textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+        }
+        
+        .modal-content button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 1000px) {
+            .main-container {
+                flex-direction: column;
+                height: auto;
+            }
+            .resource-panel {
+                width: 100%;
+                height: 400px;
+            }
+            .bot-panel {
+                height: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- 左侧：资源中心 -->
+        <div class="resource-panel">
+            <div class="resource-header">
+                <h2>
+                    <i>📚</i> 
+                    项目资源中心
+                </h2>
+                <div class="stage-tabs" id="stageTabs">
+                    <span class="stage-tab active" onclick="filterResources('all')">全部</span>
+                    <span class="stage-tab" onclick="filterResources('theme')">确定主题</span>
+                    <span class="stage-tab" onclick="filterResources('design')">协同设计</span>
+                    <span class="stage-tab" onclick="filterResources('plan')">制定计划</span>
+                    <span class="stage-tab" onclick="filterResources('make')">探究制作</span>
+                    <span class="stage-tab" onclick="filterResources('show')">成果交流</span>
+                    <span class="stage-tab" onclick="filterResources('reflect')">总结评价</span>
+                </div>
+            </div>
+            
+            <div class="resource-list" id="resourceList">
+                <!-- 资源列表会动态生成 -->
+            </div>
+        </div>
+        
+        <!-- 右侧：智能体 -->
+        <div class="bot-panel">
+            <div class="bot-header">
+                <div class="bot-avatar">🤖</div>
+                <div class="bot-info">
+                    <h3>目标制定助手</h3>
+                    <p>上传学生诊断数据，AI帮您生成项目目标</p>
+                </div>
+            </div>
+            <div id="chat-container"></div>
+        </div>
+    </div>
+    
+    <!-- 教师入口按钮 -->
+    <button class="teacher-btn" onclick="openTeacherModal()">👩‍🏫 教师上传资源</button>
+    
+    <!-- 教师上传模态框 -->
+    <div class="modal" id="teacherModal">
+        <div class="modal-content">
+            <h3>上传新资源</h3>
+            <input type="text" id="resTitle" placeholder="资源名称" value="唐代诗词精选">
+            <select id="resStage">
+                <option value="theme">确定主题阶段</option>
+                <option value="design">协同设计阶段</option>
+                <option value="plan">制定计划阶段</option>
+                <option value="make">探究制作阶段</option>
+                <option value="show">成果交流阶段</option>
+                <option value="reflect">总结评价阶段</option>
+            </select>
+            <select id="resType">
+                <option value="📄">📄 文档资料</option>
+                <option value="🖼️">🖼️ 图片素材</option>
+                <option value="🎬">🎬 视频教程</option>
+                <option value="📝">📝 提示词模板</option>
+                <option value="🏆">🏆 优秀案例</option>
+            </select>
+            <textarea id="resDesc" rows="3" placeholder="资源描述">包含经典唐诗及AI绘画提示词示例</textarea>
+            <input type="text" id="resUrl" placeholder="资源链接" value="https://pan.baidu.com/s/xxx">
+            <input type="password" id="adminPass" placeholder="管理密码" value="123456">
+            <button onclick="addResource()">发布资源</button>
+            <button onclick="closeTeacherModal()" style="background:#cbd5e0; margin-top:10px;">取消</button>
+        </div>
+    </div>
+
+    <!-- 智能体SDK -->
+    <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.19/libs/cn/index.js"></script>
+    
+    <script>
+        // ===== 智能体配置 =====
+        const BOT_ID = '7613966550676783139';
+        const API_TOKEN = 'sat_rd1gdTADeXonGAbPSm1KkUNBuzZYcMD514SsAdoIy4tDGtaD798vT1jEGffbZlMG';
+        
+        // ===== 资源数据 =====
+        let resources = [
+            {
+                id: 1,
+                title: '传统节日文化素材',
+                desc: '春节、中秋、端午等节日起源、习俗、诗词',
+                type: '📄',
+                stage: 'theme',
+                url: 'https://pan.baidu.com/s/xxx',
+                size: '15.2MB'
+            },
+            {
+                id: 2,
+                title: '古诗词配画提示词',
+                desc: '20个优化好的提示词模板，快速生成古诗词意境图',
+                type: '📝',
+                stage: 'design',
+                url: 'https://docs.qq.com/doc/xxx',
+                size: '2.1MB'
+            },
+            {
+                id: 3,
+                title: 'AI绘画参数指南',
+                desc: '水墨风、工笔画等风格参数设置详解',
+                type: '📄',
+                stage: 'make',
+                url: 'https://xxx.com/guide',
+                size: '3.5MB'
+            },
+            {
+                id: 4,
+                title: '学生优秀作品集',
+                desc: '上一届学生创作的AI古诗配画精选',
+                type: '🏆',
+                stage: 'show',
+                url: 'https://xxx.com/cases',
+                size: '25.8MB'
+            }
+        ];
+        
+        let currentFilter = 'all';
+        
+        // 显示资源列表
+        function displayResources() {
+            const list = document.getElementById('resourceList');
+            const filtered = currentFilter === 'all' 
+                ? resources 
+                : resources.filter(r => r.stage === currentFilter);
+            
+            list.innerHTML = filtered.map(res => `
+                <div class="resource-item" onclick="window.open('${res.url}', '_blank')">
+                    <div class="resource-item-header">
+                        <div class="resource-icon">${res.type}</div>
+                        <div class="resource-info">
+                            <div class="resource-title">${res.title}</div>
+                            <div class="resource-meta">
+                                <span>${res.size}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="resource-desc">${res.desc}</div>
+                    <div class="resource-footer">
+                        <span class="resource-tag">${getStageName(res.stage)}</span>
+                        <span class="resource-link">查看 →</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function getStageName(stage) {
+            const map = {
+                'theme': '确定主题',
+                'design': '协同设计',
+                'plan': '制定计划',
+                'make': '探究制作',
+                'show': '成果交流',
+                'reflect': '总结评价'
+            };
+            return map[stage] || stage;
+        }
+        
+        // 筛选资源
+        window.filterResources = function(stage) {
+            currentFilter = stage;
+            document.querySelectorAll('.stage-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            displayResources();
+        };
+        
+        // 教师模态框
+        window.openTeacherModal = function() {
+            document.getElementById('teacherModal').classList.add('active');
+        };
+        
+        window.closeTeacherModal = function() {
+            document.getElementById('teacherModal').classList.remove('active');
+        };
+        
+        // 添加资源
+        window.addResource = function() {
+            const pass = document.getElementById('adminPass').value;
+            if (pass !== '123456') {
+                alert('密码错误');
+                return;
+            }
+            
+            const newRes = {
+                id: resources.length + 1,
+                title: document.getElementById('resTitle').value,
+                desc: document.getElementById('resDesc').value,
+                type: document.getElementById('resType').value,
+                stage: document.getElementById('resStage').value,
+                url: document.getElementById('resUrl').value,
+                size: '1.0MB'
+            };
+            
+            resources.push(newRes);
+            displayResources();
+            closeTeacherModal();
+            alert('资源添加成功！');
+        };
+        
+        // 初始化智能体
+        window.onload = function() {
+            // 显示资源
+            displayResources();
+            
+            // 初始化智能体
+            try {
+                const chatClient = new CozeWebSDK.WebChatClient({
+                    config: { bot_id: BOT_ID },
+                    componentProps: { title: '目标制定助手' },
+                    auth: {
+                        type: 'token',
+                        token: API_TOKEN,
+                        onRefreshToken: () => API_TOKEN
+                    },
+                    container: document.getElementById('chat-container'),
+                    uiMode: 'embedded'
+                });
+                
+                // 自动打开聊天窗口
+                setTimeout(() => {
+                    if (chatClient && typeof chatClient.showChatBot === 'function') {
+                        chatClient.showChatBot();
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                console.error('智能体初始化失败:', error);
+            }
+        };
+    </script>
+</body>
+</html>
